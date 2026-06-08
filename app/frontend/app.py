@@ -20,7 +20,10 @@ INDEX_HTML = """
     <title>SkyWatch</title>
     <style>
       body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f7fb; }
-      .card { max-width: 560px; margin: 0 auto; background: #fff; padding: 1.25rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+      .card {
+        max-width: 560px; margin: 0 auto; background: #fff; padding: 1.25rem;
+        border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      }
       h1 { margin-top: 0; }
       input, button { width: 100%; padding: 0.7rem; margin-top: 0.6rem; font-size: 1rem; }
       button { cursor: pointer; background: #1677ff; color: #fff; border: 0; border-radius: 8px; }
@@ -69,7 +72,12 @@ def publish_message(city: str) -> str:
 
 @app.route("/", methods=["GET"])
 def index():
-    return render_template_string(INDEX_HTML, message=None, message_class="", queue_name=RABBITMQ_QUEUE)
+    return render_template_string(
+        INDEX_HTML,
+        message=None,
+        message_class="",
+        queue_name=RABBITMQ_QUEUE,
+    )
 
 
 @app.route("/submit", methods=["POST"])
