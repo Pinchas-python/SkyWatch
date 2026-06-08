@@ -2,18 +2,16 @@ frontend:
   replicaCount: 1
   image:
     repository: ghcr.io/pinchas-python/skywatch-frontend
-    tag: latest
+    tag: 4a1ef10
   service:
     type: NodePort
     port: 5000
     nodePort: 30080
-
 worker:
   replicaCount: 1
   image:
     repository: ghcr.io/pinchas-python/skywatch-worker
-    tag: latest
-
+    tag: 4a1ef10
 rabbitmq:
   image:
     repository: rabbitmq
