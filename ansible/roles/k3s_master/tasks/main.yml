@@ -1,0 +1,67 @@
+---
+- name: Ensure required packages are installed
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Check if k3s service is active
+  ansible.builtin.command: systemctl is-active k3s
+  register: k3s_service_status
+  changed_when: false
+  failed_when: false
+
+- name: Check if k3s uninstall script exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-uninstall.sh
+  register: k3s_uninstall_script
+
+- name: Clean broken k3s install when service is not active
+  ansible.builtin.command: /usr/local/bin/k3s-uninstall.sh
+  when:
+    - k3s_uninstall_script.stat.exists
+    - k3s_service_status.rc != 0
+
+- name: Install K3s server if not active
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | \
+      INSTALL_K3S_VERSION='{{ k3s_version }}' \
+      sh -s - server \
+      --disable traefik \
+      --tls-san {{ ansible_host }}
+  args:
+    executable: /bin/bash
+  when: k3s_service_status.rc != 0
+
+- name: Wait for node token to be available
+  ansible.builtin.wait_for:
+    path: /var/lib/rancher/k3s/server/node-token
+    timeout: 180
+
+- name: Read cluster node token
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: k3s_token_raw
+
+- name: Store token as host fact
+  ansible.builtin.set_fact:
+    k3s_token: "{{ k3s_token_raw.content | b64decode | trim }}"
+
+- name: Ensure kubeconfig is readable
+  ansible.builtin.file:
+    path: /etc/rancher/k3s/k3s.yaml
+    mode: "0644"
+
+- name: Build local kubeconfig with public IP endpoint
+  ansible.builtin.shell: |
+    sed 's/127.0.0.1/{{ ansible_host }}/' /etc/rancher/k3s/k3s.yaml > /tmp/skywatch-kubeconfig
+  args:
+    executable: /bin/bash
+
+- name: Fetch kubeconfig to repository root
+  ansible.builtin.fetch:
+    src: /tmp/skywatch-kubeconfig
+    dest: ../kubeconfig
+    flat: true

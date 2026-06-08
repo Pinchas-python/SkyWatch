@@ -1,0 +1,18 @@
+---
+- name: Install and configure K3s master
+  hosts: master
+  become: true
+  gather_facts: true
+  vars:
+    k3s_version: "v1.29.5+k3s1"
+  roles:
+    - role: k3s_master
+
+- name: Join workers to K3s cluster
+  hosts: workers
+  become: true
+  gather_facts: true
+  vars:
+    k3s_version: "v1.29.5+k3s1"
+  roles:
+    - role: k3s_worker

@@ -1,0 +1,36 @@
+---
+- name: Ensure required packages are installed
+  ansible.builtin.apt:
+    name:
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Check if k3s-agent service is active
+  ansible.builtin.command: systemctl is-active k3s-agent
+  register: k3s_agent_status
+  changed_when: false
+  failed_when: false
+
+- name: Check if k3s-agent uninstall script exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s-agent-uninstall.sh
+  register: k3s_agent_uninstall_script
+
+- name: Clean broken k3s-agent install when service is not active
+  ansible.builtin.command: /usr/local/bin/k3s-agent-uninstall.sh
+  when:
+    - k3s_agent_uninstall_script.stat.exists
+    - k3s_agent_status.rc != 0
+
+- name: Join node to K3s cluster if agent is not active
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | \
+      K3S_URL='https://{{ hostvars[groups["master"][0]].private_ip }}:6443' \
+      K3S_TOKEN='{{ hostvars[groups["master"][0]].k3s_token }}' \
+      INSTALL_K3S_VERSION='{{ k3s_version }}' \
+      sh -s - agent
+  args:
+    executable: /bin/bash
+  when: k3s_agent_status.rc != 0

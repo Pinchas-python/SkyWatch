@@ -1,0 +1,11 @@
+[master]
+master ansible_host=${master_public_ip} private_ip=${master_private_ip}
+
+[workers]
+worker1 ansible_host=${worker1_public_ip} private_ip=${worker1_private_ip}
+worker2 ansible_host=${worker2_public_ip} private_ip=${worker2_private_ip}
+
+[all:vars]
+ansible_user=ubuntu
+ansible_ssh_private_key_file=${ssh_private_key_path}
+ansible_python_interpreter=/usr/bin/python3
