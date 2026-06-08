@@ -1,0 +1,23 @@
+frontend:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/Pinchas-python/skywatch-frontend
+    tag: latest
+  service:
+    type: NodePort
+    port: 5000
+    nodePort: 30080
+
+worker:
+  replicaCount: 1
+  image:
+    repository: ghcr.io/Pinchas-python/skywatch-worker
+    tag: latest
+
+rabbitmq:
+  image:
+    repository: rabbitmq
+    tag: 3.13-management
+  auth:
+    username: guest
+    password: guest

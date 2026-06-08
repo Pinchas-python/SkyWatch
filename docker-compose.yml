@@ -1,0 +1,38 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: skywatch-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  frontend:
+    build:
+      context: ./app/frontend
+    container_name: skywatch-frontend
+    environment:
+      PYTHONUNBUFFERED: "1"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_QUEUE: weather_requests
+    ports:
+      - "5000:5000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ./app/worker
+    container_name: skywatch-worker
+    environment:
+      PYTHONUNBUFFERED: "1"
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_QUEUE: weather_requests
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
