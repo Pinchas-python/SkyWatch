@@ -3,6 +3,7 @@ frontend:
   image:
     repository: ghcr.io/pinchas-python/skywatch-frontend
     tag: bf122ab
+    pullPolicy: IfNotPresent
   service:
     type: NodePort
     port: 5000
@@ -12,7 +13,9 @@ worker:
   image:
     repository: ghcr.io/pinchas-python/skywatch-worker
     tag: bf122ab
+    pullPolicy: IfNotPresent
 rabbitmq:
+  queue: weather_requests
   image:
     repository: rabbitmq
     tag: 3.13-management

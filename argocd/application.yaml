@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: skywatch
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pinchas-python/SkyWatch.git
+    targetRevision: main
+    path: helm/skywatch
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: skywatch
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
