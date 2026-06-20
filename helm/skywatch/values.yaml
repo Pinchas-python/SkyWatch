@@ -2,7 +2,7 @@ frontend:
   replicaCount: 1
   image:
     repository: ghcr.io/pinchas-python/skywatch-frontend
-    tag: bf122ab
+    tag: "4925531"
     pullPolicy: IfNotPresent
   service:
     type: NodePort
@@ -12,7 +12,7 @@ worker:
   replicaCount: 1
   image:
     repository: ghcr.io/pinchas-python/skywatch-worker
-    tag: bf122ab
+    tag: "4925531"
     pullPolicy: IfNotPresent
 rabbitmq:
   queue: weather_requests
